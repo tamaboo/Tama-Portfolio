@@ -1,19 +1,22 @@
-/* eslint-disable react/no-unknown-property */
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import { Canvas, extend, useFrame } from '@react-three/fiber';
 import { useGLTF, useTexture, Environment, Lightformer } from '@react-three/drei';
 import { BallCollider, CuboidCollider, Physics, RigidBody, useRopeJoint, useSphericalJoint } from '@react-three/rapier';
 import { MeshLineGeometry, MeshLineMaterial } from 'meshline';
-
-// replace with your own imports, see the usage snippet for details
-const cardGLB = "/portofolio/assets/card.glb";
-const lanyard = "/portofolio/assets/lanyard.png";
-
 import * as THREE from 'three';
 import './Lanyard.css';
 
 extend({ MeshLineGeometry, MeshLineMaterial });
+
+// --- KONFIGURASI PATH ASSETS ---
+// Path untuk model 3D (tetap)
+const cardGLB = "/portofolio/assets/card.glb"; 
+// Path untuk tekstur tali lanyard (tetap)
+const lanyardPath = "/portofolio/assets/lanyard.png"; 
+// Path BARU untuk foto tama.png
+// Karena file ada di folder public/assets/tama.png, kita panggilnya "/assets/tama.png"
+const tamaPath = "/portofolio/assets/1.png";
 
 export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true }) {
   return (
@@ -37,12 +40,18 @@ export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], 
     </div>
   );
 }
+
 function Band({ maxSpeed = 50, minSpeed = 0 }) {
   const band = useRef(), fixed = useRef(), j1 = useRef(), j2 = useRef(), j3 = useRef(), card = useRef();
   const vec = new THREE.Vector3(), ang = new THREE.Vector3(), rot = new THREE.Vector3(), dir = new THREE.Vector3();
   const segmentProps = { type: 'dynamic', canSleep: true, colliders: false, angularDamping: 4, linearDamping: 4 };
+  
+  // Load Model GLB
   const { nodes, materials } = useGLTF(cardGLB);
-  const texture = useTexture(lanyard);
+  
+  // LOAD 2 TEXTURE SEKALIGUS (Tali & Foto Tama)
+  const [lanyardTexture, tamaTexture] = useTexture([lanyardPath, tamaPath]);
+
   const [curve] = useState(() => new THREE.CatmullRomCurve3([new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()]));
   const [dragged, drag] = useState(false);
   const [hovered, hover] = useState(false);
@@ -98,7 +107,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
   });
 
   curve.curveType = 'chordal';
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
+  lanyardTexture.wrapS = lanyardTexture.wrapT = THREE.RepeatWrapping;
 
   return (
     <>
@@ -123,7 +132,16 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
             onPointerUp={(e) => (e.target.releasePointerCapture(e.pointerId), drag(false))}
             onPointerDown={(e) => (e.target.setPointerCapture(e.pointerId), drag(new THREE.Vector3().copy(e.point).sub(vec.copy(card.current.translation()))))}>
             <mesh geometry={nodes.card.geometry}>
-              <meshPhysicalMaterial map={materials.base.map} map-anisotropy={16} clearcoat={1} clearcoatRoughness={0.15} roughness={0.9} metalness={0.8} />
+              {/* --- BAGIAN INI YANG MENERAPKAN FOTO TAMA --- */}
+              <meshPhysicalMaterial 
+                map={tamaTexture}       /* <-- Pakai variable tamaTexture */
+                map-flipY={false}       /* <-- Agar gambar tidak terbalik */
+                map-anisotropy={16} 
+                clearcoat={1} 
+                clearcoatRoughness={0.15} 
+                roughness={0.9} 
+                metalness={0.8} 
+              />
             </mesh>
             <mesh geometry={nodes.clip.geometry} material={materials.metal} material-roughness={0.3} />
             <mesh geometry={nodes.clamp.geometry} material={materials.metal} />
@@ -137,7 +155,7 @@ function Band({ maxSpeed = 50, minSpeed = 0 }) {
           depthTest={false}
           resolution={isSmall ? [1000, 2000] : [1000, 1000]}
           useMap
-          map={texture}
+          map={lanyardTexture} /* <-- Tali tetap pakai texture lanyard */
           repeat={[-4, 1]}
           lineWidth={1}
         />
