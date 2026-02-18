@@ -22,7 +22,7 @@ Dibuat dengan React + Vite, ini adalah showcase dari project, skill, dan karya y
 
 1. Clone repository ini:
 ```bash
-git clone https://github.com/rissss21/portofolio.git
+git clone https://github.com/tamaboo/Tama-Portfolio.git
 cd portofolio
 ````
 

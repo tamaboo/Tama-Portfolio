@@ -11,12 +11,12 @@ extend({ MeshLineGeometry, MeshLineMaterial });
 
 // --- KONFIGURASI PATH ASSETS ---
 // Path untuk model 3D (tetap)
-const cardGLB = "/portofolio/assets/card.glb"; 
+const cardGLB = "/Tama-Portfolio/assets/card.glb"; 
 // Path untuk tekstur tali lanyard (tetap)
-const lanyardPath = "/portofolio/assets/lanyard.png"; 
+const lanyardPath = "/Tama-Portfolio/assets/lanyard.png"; 
 // Path BARU untuk foto tama.png
 // Karena file ada di folder public/assets/tama.png, kita panggilnya "/assets/tama.png"
-const tamaPath = "/portofolio/assets/1.png";
+const tamaPath = "/Tama-Portfolio/assets/1.png";
 
 export default function Lanyard({ position = [0, 0, 30], gravity = [0, -40, 0], fov = 20, transparent = true }) {
   return (
